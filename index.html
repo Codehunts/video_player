@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+</head>
+<body>
+
+    <style>
+        body {
+            text-align: center;
+            background-color: #333;
+            color: #fff;
+        }
+
+        .video-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+        }
+
+        .custom-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+        }
+
+        .control-button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #play-pause-button::after {
+            content: "\23F5"; 
+        }
+
+        #mute-button::after {
+            content: "\1F50A";
+        }
+
+        #full-screen-button::after {
+            content: "\2195";
+        }
+        video::-webkit-media-controls {
+            display: none;
+        }
+
+    </style>
+    <div class="video-container">
+        <video id="custom-video" controls>
+            <source src="video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="custom-controls">
+            <button id="play-pause-button" class="control-button">&#9658;</button>
+            <input id="seek-bar" type="range" min="0" max="100" value="0" step="0.1">
+            <button id="mute-button" class="control-button">&#128266;</button>
+            <input id="volume-bar" type="range" min="0" max="1" step="0.01" value="1">
+            <span id="current-time">0:00</span> / <span id="duration">0:00</span>
+            <button id="full-screen-button" class="control-button">&#8597;</button>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('custom-video');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const seekBar = document.getElementById('seek-bar');
+        const muteButton = document.getElementById('mute-button');
+        const volumeBar = document.getElementById('volume-bar');
+        const currentTime = document.getElementById('current-time');
+        const duration = document.getElementById('duration');
+        const fullScreenButton = document.getElementById('full-screen-button');
+
+        playPauseButton.addEventListener('click', togglePlayPause);
+        muteButton.addEventListener('click', toggleMute);
+        fullScreenButton.addEventListener('click', toggleFullScreen);
+        video.addEventListener('timeupdate', updateProgressBar);
+        seekBar.addEventListener('input', seek);
+        volumeBar.addEventListener('input', setVolume);
+        video.addEventListener('ended', resetPlayButton);
+
+        function togglePlayPause() {
+            if (video.paused || video.ended) {
+                video.play();
+                playPauseButton.innerHTML = '&#9616;&#9616;'; 
+            } else {
+                video.pause();
+                playPauseButton.innerHTML = '&#9658;'; 
+            }
+        }
+
+        function toggleMute() {
+            if (video.muted) {
+                video.muted = false;
+                muteButton.innerHTML = '&#128266;';
+            } else {
+                video.muted = true;
+                muteButton.innerHTML = '&#128263;';
+            }
+        }
+
+        function toggleFullScreen() {
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.mozRequestFullScreen) {
+                video.mozRequestFullScreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            }
+        }
+
+        function updateProgressBar() {
+            seekBar.value = (video.currentTime / video.duration) * 100;
+            currentTime.textContent = formatTime(video.currentTime);
+            duration.textContent = formatTime(video.duration);
+        }
+
+        function seek() {
+            const seekTime = (seekBar.value / 100) * video.duration;
+            video.currentTime = seekTime;
+        }
+
+        function setVolume() {
+            video.volume = volumeBar.value;
+        }
+
+        function resetPlayButton() {
+            playPauseButton.innerHTML = '&#9658;'; 
+        }
+
+        function formatTime(time) {
+            const minutes = Math.floor(time / 60);
+            const seconds = Math.floor(time % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+    </script>
+
+</body>
+</html>
